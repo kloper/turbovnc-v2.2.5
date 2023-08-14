@@ -2801,7 +2801,7 @@ LRESULT CALLBACK ClientConnection::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
       GetWindowThreadProcessId((HWND)wParam, &pid);
 
       if (LowLevelHook::isActive() && IsWindowVisible(_this->m_hwnd1) &&
-          pid != GetProcessId(GetCurrentProcess())) {
+          pid != GetCurrentProcessId()) {
         vnclog.Print(6, "Keyboard focus lost. Temporarily ungrabbing keyboard.\n");
         _this->UngrabKeyboard(false);
       }
