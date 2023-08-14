@@ -42,12 +42,23 @@ void ClientConnection::ProcessLocalClipboardChange()
     vnclog.Print(2, "Don't send initial clipboard!\n");
     m_initialClipboardSeen = true;
   } else if (!m_opts.m_DisableClipboard) {
-
     vnclog.Print(2, "Clipboard: getting text\n");
     // The clipboard should not be modified by more than one thread at once
+
+    bool rc = false;
+    for (int i = 0; i < 1000; i++) {
+        rc = OpenClipboard(m_hwnd);
+        if (!rc) {
+            omni_thread::self()->sleep(0, 1000);
+            continue;
+        } 
+        break;
+    }
+
     omni_mutex_lock l(m_clipMutex);
 
-    if (OpenClipboard(m_hwnd)) {
+    if (rc) {
+        vnclog.Print(2, "Clipboard: OpenClipboard() succeeded\n");
       HGLOBAL hglb = GetClipboardData(CF_TEXT);
       if (hglb == NULL) {
           vnclog.Print(2, "Clipboard: GetClipboardData() failed\n");
@@ -68,7 +79,9 @@ void ClientConnection::ProcessLocalClipboardChange()
           if (contents[i] != '\x0d')
             unixcontents[j++] = contents[i];
         }
+       
         unixcontents[j] = '\0';
+        vnclog.Print(2, "Clipboard: GetClipboardData() text: %d\n", strlen(unixcontents));
         try {
           SendClientCutText(unixcontents, strlen(unixcontents));
         } catch (WarningException &e) {
@@ -112,9 +125,20 @@ void ClientConnection::UpdateLocalClipboard(char *buf, size_t len)
 
   // The clipboard should not be modified by more than one thread at once
   {
+    bool rc = false;
+    for (int i = 0; i < 1000; i++) {
+        rc = OpenClipboard(m_hwnd);
+        if (!rc) {
+            omni_thread::self()->sleep(0, 1000);
+            continue;
+        }
+        break;
+    }
+
     omni_mutex_lock l(m_clipMutex);
 
-    if (!OpenClipboard(m_hwnd)) {
+    vnclog.Print(2, "Clipboard2: text: %d\n", strlen(wincontents));
+    if (!rc) {
       vnclog.Print(0, "Failed to open clipboard (error = %d)\n",
                    GetLastError());
       delete[] wincontents;
@@ -122,6 +146,7 @@ void ClientConnection::UpdateLocalClipboard(char *buf, size_t len)
     }
     vnclog.Print(2, "Clipboard2: OpenClipboard() succeeded\n");
     if (!EmptyClipboard()) {
+      CloseClipboard();
       vnclog.Print(0, "Failed to empty clipboard (error = %d)\n",
                    GetLastError());
       delete[] wincontents;
