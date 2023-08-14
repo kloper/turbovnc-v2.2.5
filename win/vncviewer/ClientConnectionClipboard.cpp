@@ -43,14 +43,17 @@ void ClientConnection::ProcessLocalClipboardChange()
     m_initialClipboardSeen = true;
   } else if (!m_opts.m_DisableClipboard) {
 
+    vnclog.Print(2, "Clipboard: getting text\n");
     // The clipboard should not be modified by more than one thread at once
     omni_mutex_lock l(m_clipMutex);
 
     if (OpenClipboard(m_hwnd)) {
       HGLOBAL hglb = GetClipboardData(CF_TEXT);
       if (hglb == NULL) {
+          vnclog.Print(2, "Clipboard: GetClipboardData() failed\n");
         CloseClipboard();
       } else {
+          vnclog.Print(2, "Clipboard: GetClipboardData() succeeded\n");
         LPSTR lpstr = (LPSTR)GlobalLock(hglb);
 
         char *contents = new char[strlen(lpstr) + 1];
@@ -76,6 +79,9 @@ void ClientConnection::ProcessLocalClipboardChange()
         delete[] contents;
         delete[] unixcontents;
       }
+    }
+    else {
+        vnclog.Print(2, "Clipboard: OpenClipboard() failed: 0x%x\n", GetLastError());
     }
   }
   // Pass the message to the next window in the clipboard viewer chain
@@ -114,12 +120,14 @@ void ClientConnection::UpdateLocalClipboard(char *buf, size_t len)
       delete[] wincontents;
       return;
     }
+    vnclog.Print(2, "Clipboard2: OpenClipboard() succeeded\n");
     if (!EmptyClipboard()) {
       vnclog.Print(0, "Failed to empty clipboard (error = %d)\n",
                    GetLastError());
       delete[] wincontents;
       return;
     }
+    vnclog.Print(2, "Clipboard2: EmptyClipboard() succeeded\n");
 
     // Allocate a global memory object for the text.
     HGLOBAL hglbCopy = GlobalAlloc(GMEM_DDESHARE, (len + 1) * sizeof(char));
@@ -139,5 +147,6 @@ void ClientConnection::UpdateLocalClipboard(char *buf, size_t len)
                    GetLastError());
       return;
     }
+    vnclog.Print(2, "Clipboard2: CloseClipboard() succeeded\n");
   }
 }

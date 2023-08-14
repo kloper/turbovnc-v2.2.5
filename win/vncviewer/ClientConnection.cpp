@@ -2847,11 +2847,13 @@ LRESULT CALLBACK ClientConnection::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
     }
 
     case WM_DRAWCLIPBOARD:
+      vnclog.Print(2, "Clipboard draw event.\n");
       if (!_this->m_opts.m_benchFile) _this->ProcessLocalClipboardChange();
       return 0;
 
     case WM_CHANGECBCHAIN:
     {
+      vnclog.Print(2, "Clipboard change event.\n");
       // The clipboard chain is changing
       HWND hWndRemove = (HWND)wParam;      // handle of window being removed
       HWND hWndNext = (HWND)lParam;        // handle of next window in chain
