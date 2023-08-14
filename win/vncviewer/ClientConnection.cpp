@@ -168,6 +168,7 @@ void ClientConnection::Init(VNCviewerApp *pApp)
   m_running = false;
   m_pendingFormatChange = false;
   m_pendingEncodingChange = false;
+  m_pendingServerResize = false;
 
   m_hScrollPos = 0;  m_vScrollPos = 0;
 
