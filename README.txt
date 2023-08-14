@@ -1,3 +1,24 @@
+About TurboVNC v2.2.5
+=====================
+
+This is a fork of TurboVNC version 2.2.5.
+
+I am using TurboVNC for many years as my primary VNC client to Linux
+machines. The main reasons for that are its stability and automatic
+desktop resize out of the box.
+
+Unfortunately, version 2.2.5 is (almost) last version with native Windows VNC
+client. Later versions start windows-specific code removal toward pure Java
+client. I can't use pure Java since not all my windows machines have JRE
+installed. More over, the java client has its own shortcomings.
+
+I have decided to fork TurboVNC with goal to fix minor client bugs
+specific to Windows.
+
+The main annoyances fixed right now:
+ * Sporadic resize freezes
+ * Clipboard not working on Windows 11 (and sometimes on Windows 10)
+
 About TurboVNC
 ==============
 
