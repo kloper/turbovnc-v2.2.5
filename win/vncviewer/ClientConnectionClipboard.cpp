@@ -98,6 +98,8 @@ void ClientConnection::ProcessLocalClipboardChange()
     }
   }
   // Pass the message to the next window in the clipboard viewer chain
+  vnclog.Print(2, "Clipboard: sending WM_DRAWCLIPBOARD to %x\n", m_hwndNextViewer);
+
   SendMessage(m_hwndNextViewer, WM_DRAWCLIPBOARD, 0, 0);
 }
 
