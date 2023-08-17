@@ -86,9 +86,29 @@ void Log::SetFile(LPTSTR filename, bool append)
 
   m_tofile  = true;
 
+  CHAR new_file_name[MAX_PATH] = { 0 };
+  CHAR drive[MAX_PATH] = { 0 };
+  CHAR dir[MAX_PATH] = { 0 };
+  CHAR fname[MAX_PATH] = { 0 };
+  CHAR ext[MAX_PATH] = { 0 };
+  int rc = _splitpath_s(
+      filename,
+      drive, sizeof(drive),
+      dir, sizeof(dir),
+      fname, sizeof(fname),
+      ext, sizeof(ext));
+
+  if (rc != 0) {
+      strcpy_s(new_file_name, sizeof(new_file_name), filename);
+  }
+  else {
+      DWORD pid = GetCurrentProcessId();
+      snprintf(new_file_name, sizeof(new_file_name), "%s%s%s-%d%s", drive, dir, fname, pid,  ext);
+  }
+
   // If filename is NULL or invalid we should throw an exception here
 
-  hlogfile = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+  hlogfile = CreateFile(new_file_name, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                         OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (hlogfile == INVALID_HANDLE_VALUE) {
