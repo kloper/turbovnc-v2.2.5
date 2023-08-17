@@ -889,7 +889,7 @@ void ClientConnection::GetConnectDetails()
   // viewer chain.  But doing this will cause us to be notified immediately of
   // the current state.  We don't want to send that.
   m_initialClipboardSeen = false;
-  m_hwndNextViewer = SetClipboardViewer(m_hwnd);
+  //m_hwndNextViewer = SetClipboardViewer(m_hwnd);
 }
 
 
